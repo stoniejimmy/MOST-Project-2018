@@ -48,7 +48,7 @@ int lr = 10;
 int lg = 11;
 int lb = 12;
 
-//定義要從master接收的燈號訊號
+//定義要從master接收的燈號訊號 a為上位元 b為下位元
 volatile int val1_a; volatile int val1_b; volatile int val1;
 volatile int val2_a; volatile int val2_b; volatile int val2;
 volatile int val3_a; volatile int val3_b; volatile int val3;
