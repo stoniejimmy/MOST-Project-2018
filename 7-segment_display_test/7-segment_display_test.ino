@@ -1,5 +1,6 @@
 //2018 科技部大專學生研究計畫
 //智能律動電動載具之控制研究
+//National Koahsiung University of Science and Technology, Taiwan, R.O.C.
 //Code by Stonie Tseng
 //Facility Advisor: Professor Po-Wen Hsueh
 
