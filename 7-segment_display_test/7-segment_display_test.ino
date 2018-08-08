@@ -1,6 +1,15 @@
+//2018 科技部大專學生研究計畫
+//智能律動電動載具之控制研究
+//Code by Stonie Tseng
+//Facility Advisor: Professor Po-Wen Hsueh
+
+//Created Date: 2018/4/2
+//Last Modified: 2018/8/8
+
+
 /*
   接腳說明:
-  七段顯示器的74LS47
+  七段顯示器的74LS47控制IC
   正電:紅線
   負電:黑線
   A點:黃線
@@ -18,6 +27,7 @@
   下藍:紫線
 */
 
+//引用Wire資料庫來使用i2c與主控制器連線
 #include <Wire.h>
 
 int num = 0; // count value
