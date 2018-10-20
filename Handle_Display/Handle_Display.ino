@@ -19,6 +19,10 @@
 */
 
 #include <Wire.h>
+#include "LCD.h"
+#include "LiquidCrystal_I2C.h"
+
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7);
 
 int num = 0; // count value
 
@@ -46,6 +50,10 @@ int led_state_2 = 0;
 void setup() {
   Serial.begin(9600);
   Wire.begin();
+  lcd.begin (16, 2);
+  lcd.setBacklightPin(3, POSITIVE); // BL, BL_POL
+  lcd.setBacklight(HIGH);
+  lcd.print("Setup");
 
   pinMode(seg_a, OUTPUT); //黃色線
   pinMode(seg_b, OUTPUT); //紫色線
@@ -73,9 +81,11 @@ void setup() {
   digitalWrite(seg_a, HIGH); digitalWrite(seg_b, HIGH); digitalWrite(seg_c, HIGH); digitalWrite(seg_d, LOW); delay(100); //7
   digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, HIGH); delay(100); //8
   digitalWrite(seg_a, HIGH); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, HIGH); delay(100); //9
+  lcd.clear();
 }
 
 void loop() {
+  lcd.print("MOST Project2018");
   digitalWrite(seg_rst, LOW); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW);
 
   //Serial.println("I2C Reading Device 1 Begin");
@@ -96,10 +106,72 @@ void loop() {
   }
   Serial.print("Received 7 Segment Display Value: ");
   Serial.println(seg_state);
+  lcd.setCursor(0, 1);
+  lcd.print("LCD:");
+  lcd.setCursor(4, 1);
+  if (seg_state == 0) {
+    lcd.print("0");
+  } else if (seg_state == 1) {
+    lcd.print("1");
+  }
+  else if (seg_state == 2) {
+    lcd.print("2");
+  } else if (seg_state == 3) {
+    lcd.print("3");
+  }
+  else if (seg_state == 4) {
+    lcd.print("4");
+  } else if (seg_state == 5) {
+    lcd.print("5");
+  }
+  else if (seg_state == 6) {
+    lcd.print("6");
+  } else if (seg_state == 7) {
+    lcd.print("7");
+  }
+  else if (seg_state == 8) {
+    lcd.print("8");
+  } else if (seg_state == 9) {
+    lcd.print("9");
+  }
+  else {
+    lcd.print("!");
+  }
   Serial.print("Received LED1 Value: ");
   Serial.println(led_state_1);
+  lcd.setCursor(6, 1);
+  lcd.print("LED:1.");
+  lcd.setCursor(12, 1);
+  if (led_state_1 == 1) {
+    lcd.print("R");
+  }
+  else if (led_state_1 == 2) {
+    lcd.print("G");
+  }
+  else if (led_state_1 == 3) {
+    lcd.print("B");
+  }
+  else {
+    lcd.print("!");
+  }
   Serial.print("Received LED2 Value: ");
   Serial.println(led_state_2);
+  lcd.setCursor(13, 1);
+  lcd.print("2.");
+  lcd.setCursor(15, 1);
+  if (led_state_2 == 1) {
+    lcd.print("R");
+  }
+  else if (led_state_2 == 2) {
+    lcd.print("G");
+  }
+  else if (led_state_2 == 3) {
+    lcd.print("B");
+  }
+  else {
+    lcd.print("!");
+  }
+
   Serial.println("  ");
   Serial.println("  ");
   Serial.println("  ");
@@ -179,4 +251,6 @@ void loop() {
   seg_state = 10;
   led_state_1 = 10;
   led_state_2 = 10;
+
+  lcd.clear();
 }
