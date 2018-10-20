@@ -15,7 +15,7 @@ int val3 = 0; //1=RED 2=GREEN 3=BLUE
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin(1);
+  Wire.begin(11);
   Wire.onRequest(requestEvent);
 }
 
