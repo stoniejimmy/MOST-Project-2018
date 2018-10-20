@@ -1,42 +1,89 @@
-//2018 科技部大專學生研究計畫
-//智能律動電動載具之控制研究
-//National Koahsiung University of Science and Technology, Taiwan, R.O.C.
-//Code by Stonie Tseng
-//Facility Advisor: Professor Po-Wen Hsueh
-
-//Created Date: 2018/4/2
-//Last Modified: 2018/8/8
-
-//引用Wire資料庫來使用i2c與主控制器連線
 #include <Wire.h>
 
-//顯示數字及燈號的變數設定
-int seg_state = 0; //7段顯示器
-int led_state_1 = 0; //右上方系統指示燈
-int led_state_2 = 0; //右下方馬達狀態指示燈
+int seg_state = 0;
+int led_state_1 = 0;
+int led_state_2 = 0;
 
-//要透過i2c傳送的數值
+int break_read = 0;
+int throttle_read = 0;
+
 int val1 = 0; //Numbers 0~9
 int val2 = 0; //1=RED 2=GREEN 3=BLUE
 int val3 = 0; //1=RED 2=GREEN 3=BLUE
 
 
+
 void setup() {
-  //開啟序列埠以做監控
   Serial.begin(9600);
-  //準備Wire以做i2c傳送及接收，並在通道中定義為1號主機
   Wire.begin(1);
-  //隨時有request訊號就丟出數值
   Wire.onRequest(requestEvent);
 }
 
 void loop() {
-  //測試訊號
-  seg_state = 2;
-  led_state_1 = 2;
-  led_state_2 = 2;
-}
+  break_read = analogRead(A0);
+  //Serial.print("Break Value = ");
+  //Serial.println(break_read);
 
+  throttle_read = analogRead(A1);
+  Serial.print("Throttle Value = ");
+  Serial.print(throttle_read);
+  Serial.print("     ");
+
+  if (break_read >= 900) {
+    seg_state = 0;
+    led_state_1 = 1;
+    led_state_2 = 1;
+  }
+  else {
+    led_state_1 = 2;
+    led_state_2 = 2;
+    if (throttle_read <= 300) {
+      seg_state = 1;
+      Serial.println("1");
+      led_state_2 = 2;
+    }
+    else if (throttle_read > 300 & throttle_read <= 350) {
+      seg_state = 2;
+      Serial.println("2");
+      led_state_2 = 2;
+    }
+    else if (throttle_read > 350 & throttle_read <= 450) {
+      seg_state = 3;
+      Serial.println("3");
+      led_state_2 = 2;
+    }
+    else if (throttle_read > 450 & throttle_read <= 500) {
+      seg_state = 4;
+      Serial.println("4");
+      led_state_2 = 2;
+    }
+    else if (throttle_read > 500 & throttle_read <= 550) {
+      seg_state = 5;
+      Serial.println("5");
+      led_state_2 = 2;
+    }
+    else if (throttle_read > 550 & throttle_read <= 600) {
+      seg_state = 6;
+      Serial.println("6");
+      led_state_2 = 3;
+    }
+    else if (throttle_read > 600 & throttle_read <= 650) {
+      seg_state = 7;
+      Serial.println("7");
+      led_state_2 = 3;
+    }
+    else if (throttle_read > 650 & throttle_read <= 700) {
+      seg_state = 8;
+      Serial.println("8");
+      led_state_2 = 1;
+    }
+    else if (throttle_read > 700) {
+      seg_state = 9;
+      Serial.println("9");
+      led_state_2 = 1;
+    }
+  }
+}
 
 void requestEvent()
 {
@@ -51,12 +98,12 @@ void requestEvent()
   Serial.print("val3: ");
   Serial.println(val3);
 
-  Wire.write(val1); //下位元
-  Wire.write(val1 >> 8); //上位元
+  Wire.write(val1); // lower byte
+  Wire.write(val1 >> 8); // upper byte
 
-  Wire.write(val2); //下位元
-  Wire.write(val2 >> 8); //上位元
+  Wire.write(val2); // lower byte
+  Wire.write(val2 >> 8); // upper byte
 
-  Wire.write(val3); //下位元
-  Wire.write(val3 >> 8); //上位元
+  Wire.write(val3); // lower byte
+  Wire.write(val3 >> 8); // upper byte
 }
