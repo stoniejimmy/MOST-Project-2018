@@ -17,6 +17,8 @@ void setup() {
   Serial.begin(9600);
   Wire.begin(11);
   Wire.onRequest(requestEvent);
+
+  pinMode(13, OUTPUT);
 }
 
 void loop() {
@@ -87,9 +89,13 @@ void loop() {
 
 void requestEvent()
 {
-  val1 = seg_state;
-  val2 = led_state_1;
-  val3 = led_state_2;
+  //val1 = seg_state;
+  //val2 = led_state_1;
+  //val3 = led_state_2;
+
+  val1 = 5;
+  val2 = 2;
+  val3 = 2;
 
   Serial.print("val1: ");
   Serial.println(val1);
@@ -106,4 +112,9 @@ void requestEvent()
 
   Wire.write(val3); // lower byte
   Wire.write(val3 >> 8); // upper byte
+
+  digitalWrite(13, HIGH);
+  delay(50);
+  digitalWrite(13, LOW);
+  delay(50);
 }
