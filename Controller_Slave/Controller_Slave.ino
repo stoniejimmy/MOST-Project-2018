@@ -89,13 +89,9 @@ void loop() {
 
 void requestEvent()
 {
-  //val1 = seg_state;
-  //val2 = led_state_1;
-  //val3 = led_state_2;
-
-  val1 = 5;
-  val2 = 2;
-  val3 = 2;
+  val1 = seg_state;
+  val2 = led_state_1;
+  val3 = led_state_2;
 
   Serial.print("val1: ");
   Serial.println(val1);
