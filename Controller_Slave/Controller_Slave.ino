@@ -23,8 +23,8 @@ void setup() {
 
 void loop() {
   break_read = analogRead(A0);
-  //Serial.print("Break Value = ");
-  //Serial.println(break_read);
+  Serial.print("Break Value = ");
+  Serial.println(break_read);
 
   throttle_read = analogRead(A1);
   Serial.print("Throttle Value = ");
@@ -89,6 +89,7 @@ void loop() {
 
 void requestEvent()
 {
+  digitalWrite(13, HIGH);
   val1 = seg_state;
   val2 = led_state_1;
   val3 = led_state_2;
@@ -109,8 +110,5 @@ void requestEvent()
   Wire.write(val3); // lower byte
   Wire.write(val3 >> 8); // upper byte
 
-  digitalWrite(13, HIGH);
-  delay(50);
   digitalWrite(13, LOW);
-  delay(50);
 }
