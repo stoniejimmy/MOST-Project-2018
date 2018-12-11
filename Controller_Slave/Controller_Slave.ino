@@ -43,46 +43,64 @@ void loop() {
       seg_state = 1;
       Serial.println("1");
       led_state_2 = 2;
+      Serial.println("PWM Write: 185");
+      analogWrite(3, 185);
     }
     else if (throttle_read > 300 & throttle_read <= 350) {
       seg_state = 2;
       Serial.println("2");
       led_state_2 = 2;
+      Serial.println("PWM Write: 205");
+      analogWrite(3, 205);
     }
     else if (throttle_read > 350 & throttle_read <= 450) {
       seg_state = 3;
       Serial.println("3");
       led_state_2 = 2;
+      Serial.println("PWM Write: 210");
+      analogWrite(3, 210);
     }
     else if (throttle_read > 450 & throttle_read <= 500) {
       seg_state = 4;
       Serial.println("4");
       led_state_2 = 2;
+      Serial.println("PWM Write: 215");
+      analogWrite(3, 215);
     }
     else if (throttle_read > 500 & throttle_read <= 550) {
       seg_state = 5;
       Serial.println("5");
       led_state_2 = 2;
+      Serial.println("PWM Write: 220");
+      analogWrite(3, 220);
     }
     else if (throttle_read > 550 & throttle_read <= 600) {
       seg_state = 6;
       Serial.println("6");
       led_state_2 = 3;
+      Serial.println("PWM Write: 225");
+      analogWrite(3, 225);
     }
     else if (throttle_read > 600 & throttle_read <= 650) {
       seg_state = 7;
       Serial.println("7");
       led_state_2 = 3;
+      Serial.println("PWM Write: 230");
+      analogWrite(3, 230);
     }
     else if (throttle_read > 650 & throttle_read <= 700) {
       seg_state = 8;
       Serial.println("8");
       led_state_2 = 1;
+      Serial.println("PWM Write: 235");
+      analogWrite(3, 235);
     }
     else if (throttle_read > 700) {
       seg_state = 9;
       Serial.println("9");
       led_state_2 = 1;
+      Serial.println("PWM Write: 254");
+      analogWrite(3, 254);
     }
   }
 }

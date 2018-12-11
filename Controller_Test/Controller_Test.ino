@@ -5,23 +5,25 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("PWM Write: 170");
-  analogWrite(3, 170);
-  delay(5000);
-  Serial.println("PWM Write: 175");
-  analogWrite(3, 175);
+  Serial.println("PWM Write: 160");
+  analogWrite(3, 160);
   delay(5000);
   Serial.println("PWM Write: 180");
   analogWrite(3, 180);
   delay(5000);
-  Serial.println("PWM Write: 190");
-  analogWrite(3, 190);
-  delay(5000);
   Serial.println("PWM Write: 200");
   analogWrite(3, 200);
   delay(5000);
-
-  Serial.println("PWM Write: 200");
-  analogWrite(3, 200);
+  Serial.println("PWM Write: 220");
+  analogWrite(3, 220);
   delay(5000);
+  Serial.println("PWM Write: 240");
+  analogWrite(3, 240);
+  delay(5000);
+  Serial.println("PWM Write: 254");
+  analogWrite(3, 254);
+  delay(5000);
+  Serial.println("PWM Write: 150");
+  analogWrite(3, 150);
+  delay(50000);
 }
