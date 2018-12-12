@@ -82,7 +82,7 @@ void setup()
 
 void loop()
 {
-  Wire.requestFrom(11, 6);
+  Wire.requestFrom(11, 8);
   while (Wire.available())
   {
     val1_a = Wire.read(); val1_b = Wire.read();

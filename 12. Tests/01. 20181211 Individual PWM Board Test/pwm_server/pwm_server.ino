@@ -23,27 +23,56 @@ void setup()
 
 void loop()
 {
-  Wire.requestFrom(11, 6);
+  Wire.requestFrom(11, 8);
   while (Wire.available())
   {
-    val1_a = Wire.read(); val1_b = Wire.read();
-    val1 = (val1_b << 8) | val1_a;
-    val2_a = Wire.read(); val2_b = Wire.read();
-    val2 = (val2_b << 8) | val2_a;
-    val3_a = Wire.read(); val3_b = Wire.read();
-    val3 = (val3_b << 8) | val3_a;
     val4_a = Wire.read(); val4_b = Wire.read();
     val4 = (val4_b << 8) | val4_a;
 
   }
-  seg_state = val1;
-  led_state_1 = val2;
-  led_state_2 = val3;
   pwm_value = val4;
-
-  Serial.print("val1:"); Serial.println(val1);
-  Serial.print("val2:"); Serial.println(val2);
-  Serial.print("val3:"); Serial.println(val3);
   Serial.print("val4:"); Serial.println(val4);
   Serial.println("");
+
+  if (pwm_value == 0) {
+    Serial.println("PWM Write: 155");
+    analogWrite(3, 155);
+  }
+  else if (pwm_value == 1) {
+    Serial.println("PWM Write: 185");
+    analogWrite(3, 185);
+  }
+  else if (pwm_value == 2) {
+    Serial.println("PWM Write: 190");
+    analogWrite(3, 190);
+  }
+  else if (pwm_value == 4) {
+    Serial.println("PWM Write: 195");
+    analogWrite(3, 195);
+  }
+  else if (pwm_value == 5) {
+    Serial.println("PWM Write: 200");
+    analogWrite(3, 200);
+  }
+  else if (pwm_value == 6) {
+    Serial.println("PWM Write: 210");
+    analogWrite(3, 210);
+  }
+  else if (pwm_value == 7) {
+    Serial.println("PWM Write: 220");
+    analogWrite(3, 220);
+  }
+  else if (pwm_value == 8) {
+    Serial.println("PWM Write: 230");
+    analogWrite(3, 230);
+  }
+  else if (pwm_value == 9) {
+    Serial.println("PWM Write: 240");
+    analogWrite(3, 240);
+  }
+  else{
+    Serial.println("ERROR: 150");
+    analogWrite(3, 150);
+  }
+
 }
