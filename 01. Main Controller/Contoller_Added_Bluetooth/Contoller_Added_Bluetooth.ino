@@ -1,4 +1,7 @@
 #include <Wire.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial I2CBT(24, 25);
 
 int seg_state = 0;
 int led_state_1 = 0;
