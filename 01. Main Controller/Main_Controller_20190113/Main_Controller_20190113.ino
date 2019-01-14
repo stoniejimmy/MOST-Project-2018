@@ -51,6 +51,15 @@ int safety_red = 13;
 int safety_green = 12;
 int safety_blue = 11;
 
+/*
+  油門訊號
+  紅線(橘線)5V 黑線GND 綠線Signal
+  綠色訊號線接到A15
+*/
+int throttle_pin = A15;
+int throttle_data = 0;
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -84,6 +93,7 @@ void setup() {
   digitalWrite(seg_a, HIGH); digitalWrite(seg_b, HIGH); digitalWrite(seg_c, HIGH); digitalWrite(seg_d, LOW); delay(100); //7
   digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, HIGH); delay(100); //8
   digitalWrite(seg_a, HIGH); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, HIGH); delay(100); //9
+  digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW);
 
   digitalWrite(ur, HIGH); digitalWrite(lr, HIGH); delay(100); digitalWrite(ur, LOW); digitalWrite(lr, LOW);
   digitalWrite(ug, HIGH); digitalWrite(lg, HIGH); delay(100); digitalWrite(ug, LOW); digitalWrite(lg, LOW);
@@ -95,10 +105,55 @@ void loop() {
   safety_switch_state = 0; //Overwirte in safety_switch_detection if its safe.
   safety_switch_detection();
   safety_switch_led_update();
-  seg_display();
-  state_led_update();
+  if (safety_switch_state == 2) {
+    throttle_process();
+    seg_display();
+    state_led_update();
+  }
 }
 
+void throttle_process() {
+  throttle_data = analogRead(throttle_pin);
+  Serial.print("Throttle Value = ");
+  Serial.print(throttle_data);
+  Serial.print(", Level: ");
+  if (throttle_data <= 300) {
+    seg_state = 1;
+    Serial.println("1");
+  }
+  else if (throttle_data > 300 & throttle_data <= 350) {
+    seg_state = 2;
+    Serial.println("2");
+  }
+  else if (throttle_data > 350 & throttle_data <= 450) {
+    seg_state = 3;
+    Serial.println("3");
+  }
+  else if (throttle_data > 450 & throttle_data <= 500) {
+    seg_state = 4;
+    Serial.println("4");
+  }
+  else if (throttle_data > 500 & throttle_data <= 550) {
+    seg_state = 5;
+    Serial.println("5");
+  }
+  else if (throttle_data > 550 & throttle_data <= 600) {
+    seg_state = 6;
+    Serial.println("6");
+  }
+  else if (throttle_data > 600 & throttle_data <= 650) {
+    seg_state = 7;
+    Serial.println("7");
+  }
+  else if (throttle_data > 650 & throttle_data <= 700) {
+    seg_state = 8;
+    Serial.println("8");
+  }
+  else if (throttle_data > 700) {
+    seg_state = 9;
+    Serial.println("9");
+  }
+}
 void safety_switch_detection() {
   safety_switch_data = 0;
   safety_switch_state = 0;
@@ -109,9 +164,14 @@ void safety_switch_detection() {
   if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
     safety_switch_state = 1;
     Serial.println("1 , Unafe");
+    digitalWrite(ur, HIGH); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
+    digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
+    digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW); //0
   }
   else {
     safety_switch_state = 2;
+    digitalWrite(ur, LOW); digitalWrite(ug, HIGH); digitalWrite(ub, LOW);
+    digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
     Serial.println("2 , Safe");
   }
 }
