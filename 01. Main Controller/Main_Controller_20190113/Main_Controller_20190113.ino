@@ -59,6 +59,15 @@ int safety_blue = 11;
 int throttle_pin = A15;
 int throttle_data = 0;
 
+/*
+  煞車訊號
+  黃線5V 綠線Signal
+  綠色訊號線接到A14
+*/
+int break_pin = A14;
+int break_data = 0;
+int break_state = 0; //0=Initial 1=Break, 2=Normal
+
 
 
 void setup() {
@@ -106,12 +115,64 @@ void loop() {
   safety_switch_detection();
   safety_switch_led_update();
   if (safety_switch_state == 2) {
+    break_process();
     throttle_process();
-    seg_display();
-    state_led_update();
+  }
+  seg_display();
+  state_led_update();
+}
+void safety_switch_detection() {
+  safety_switch_data = 0;
+  safety_switch_state = 0;
+  safety_switch_data = analogRead(11);
+  Serial.print("Safety Switch: ");
+  Serial.print(safety_switch_data);
+  Serial.print(" , ");
+  if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
+    safety_switch_state = 1;
+    Serial.println("1 , Unafe");
+  }
+  else {
+    safety_switch_state = 2;
+    Serial.println("2 , Safe");
   }
 }
-
+void safety_switch_led_update() {
+  if (safety_switch_state == 1) {
+    analogWrite(safety_red, 50);
+    analogWrite(safety_green, 0);
+    analogWrite(safety_blue, 0);
+    led_state_1 = 1;
+    led_state_2 = 0;
+    seg_state = 0;
+  }
+  else if (safety_switch_state == 2) {
+    analogWrite(safety_red, 0);
+    analogWrite(safety_green, 50);
+    analogWrite(safety_blue, 0);
+    led_state_1 = 2;
+  }
+  else {
+    analogWrite(safety_red, 0);
+    analogWrite(safety_green, 0);
+    analogWrite(safety_blue, 50);
+  }
+}
+void break_process() {
+  break_data = analogRead(break_pin);
+  Serial.print("Break Value = ");
+  Serial.print(break_data);
+  Serial.print(", State: ");
+  if (break_data >= 900) {
+    break_state = 1;
+    Serial.println("Break!");
+    led_state_1 = 3;
+  }
+  else{
+    break_state = 2;
+    Serial.println("Normal");
+  }
+}
 void throttle_process() {
   throttle_data = analogRead(throttle_pin);
   Serial.print("Throttle Value = ");
@@ -154,44 +215,7 @@ void throttle_process() {
     Serial.println("9");
   }
 }
-void safety_switch_detection() {
-  safety_switch_data = 0;
-  safety_switch_state = 0;
-  safety_switch_data = analogRead(11);
-  Serial.print("Safety Switch: ");
-  Serial.print(safety_switch_data);
-  Serial.print(" , ");
-  if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
-    safety_switch_state = 1;
-    Serial.println("1 , Unafe");
-    digitalWrite(ur, HIGH); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
-    digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
-    digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW); //0
-  }
-  else {
-    safety_switch_state = 2;
-    digitalWrite(ur, LOW); digitalWrite(ug, HIGH); digitalWrite(ub, LOW);
-    digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
-    Serial.println("2 , Safe");
-  }
-}
-void safety_switch_led_update() {
-  if (safety_switch_state == 1) {
-    analogWrite(safety_red, 50);
-    analogWrite(safety_green, 0);
-    analogWrite(safety_blue, 0);
-  }
-  else if (safety_switch_state == 2) {
-    analogWrite(safety_red, 0);
-    analogWrite(safety_green, 50);
-    analogWrite(safety_blue, 0);
-  }
-  else {
-    analogWrite(safety_red, 0);
-    analogWrite(safety_green, 0);
-    analogWrite(safety_blue, 50);
-  }
-}
+
 void seg_display() {
   if (seg_state == 0) {
     digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW);
@@ -237,6 +261,9 @@ void state_led_update() {
     digitalWrite(ur, LOW); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
     digitalWrite(ub, HIGH);
   }
+  else{
+    digitalWrite(ur, LOW); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
+  }
 
   if (led_state_2 == 1) {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
@@ -249,5 +276,8 @@ void state_led_update() {
   else if (led_state_2 == 3) {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
     digitalWrite(lb, HIGH);
+  }
+  else{
+    digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
   }
 }
