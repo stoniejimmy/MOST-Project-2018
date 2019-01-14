@@ -58,6 +58,7 @@ int safety_blue = 11;
 */
 int throttle_pin = A15;
 int throttle_data = 0;
+int throttle_level = 0;
 
 /*
   煞車訊號
@@ -67,6 +68,14 @@ int throttle_data = 0;
 int break_pin = A14;
 int break_data = 0;
 int break_state = 0; //0=Initial 1=Break, 2=Normal
+
+/*
+  馬達控制器PWM訊號
+  綠線Signal接在PWM Pin9
+*/
+int PWM_pin = 9;
+int pwm_percent = 0; //2.55 * pwm_percent
+int pwm_value = 127.5; //要輸出的真實value
 
 
 
@@ -118,6 +127,7 @@ void loop() {
     break_process();
     throttle_process();
   }
+  pwm_process();
   seg_display();
   state_led_update();
 }
@@ -130,6 +140,7 @@ void safety_switch_detection() {
   Serial.print(" , ");
   if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
     safety_switch_state = 1;
+    throttle_level = 1;
     Serial.println("1 , Unafe");
   }
   else {
@@ -180,40 +191,89 @@ void throttle_process() {
   Serial.print(", Level: ");
   if (throttle_data <= 300) {
     seg_state = 1;
+    throttle_level = 1;
     Serial.println("1");
   }
   else if (throttle_data > 300 & throttle_data <= 350) {
     seg_state = 2;
+    throttle_level = 2;
     Serial.println("2");
   }
   else if (throttle_data > 350 & throttle_data <= 450) {
     seg_state = 3;
+    throttle_level = 3;
     Serial.println("3");
   }
   else if (throttle_data > 450 & throttle_data <= 500) {
     seg_state = 4;
+    throttle_level = 4;
     Serial.println("4");
   }
   else if (throttle_data > 500 & throttle_data <= 550) {
     seg_state = 5;
+    throttle_level = 5;
     Serial.println("5");
   }
   else if (throttle_data > 550 & throttle_data <= 600) {
     seg_state = 6;
+    throttle_level = 6;
     Serial.println("6");
   }
   else if (throttle_data > 600 & throttle_data <= 650) {
     seg_state = 7;
+    throttle_level = 7;
     Serial.println("7");
   }
   else if (throttle_data > 650 & throttle_data <= 700) {
     seg_state = 8;
+    throttle_level = 8;
     Serial.println("8");
   }
   else if (throttle_data > 700) {
     seg_state = 9;
+    throttle_level = 9;
     Serial.println("9");
   }
+}
+void pwm_process(){
+  if (throttle_level == 0){
+    pwm_percent = 50;
+  }
+  else if (throttle_level == 1){
+    pwm_percent = 55;
+  }
+  else if (throttle_level == 2){
+    pwm_percent = 60;
+  }
+  else if (throttle_level == 3){
+    pwm_percent = 61;
+  }
+  else if (throttle_level == 4){
+    pwm_percent = 62;
+  }
+  else if (throttle_level == 5){
+    pwm_percent = 64;
+  }
+  else if (throttle_level == 6){
+    pwm_percent = 65;
+  }
+  else if (throttle_level == 7){
+    pwm_percent = 68;
+  }
+  else if (throttle_level == 8){
+    pwm_percent = 70;
+  }
+  else if (throttle_level == 9){
+    pwm_percent = 75;
+  }
+  else{
+  pwm_percent = 50;
+}
+pwm_value = 0;
+pwm_value = 2.55 * pwm_percent;
+analogWrite(PWM_pin, pwm_value);
+Serial.print("PWM Output Value: ");
+Serial.println(pwm_value);
 }
 
 void seg_display() {
