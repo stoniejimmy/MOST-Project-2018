@@ -38,6 +38,19 @@ int lr = 50;
 int lg = 51;
 int lb = 52;
 
+/*
+  安全緊急開關
+  接於46腳位，是使用自鎖開關
+  按下: 導通狀態=>中斷loop執行
+  沒按下: 斷電狀態=>loop正常執行
+  安全開關指示燈 紅色Pin13 綠色Pin12 藍色Pin11
+*/
+int safety_switch_data = 0;
+int safety_switch_state = 0; //0=Initial 1=Unsafe, 2=Safe
+int safety_red = 13;
+int safety_green = 12;
+int safety_blue = 11;
+
 
 void setup() {
   Serial.begin(9600);
@@ -54,6 +67,11 @@ void setup() {
   pinMode(lr, OUTPUT);
   pinMode(lg, OUTPUT);
   pinMode(lb, OUTPUT);
+
+  pinMode(safety_red, OUTPUT);
+  pinMode(safety_green, OUTPUT);
+  pinMode(safety_blue, OUTPUT);
+
 
   // 開始七段顯示器測試
   digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW); delay(100); digitalWrite(seg_rst, LOW);
@@ -74,10 +92,46 @@ void setup() {
 }
 
 void loop() {
+  safety_switch_state = 0; //Overwirte in safety_switch_detection if its safe.
+  safety_switch_detection();
+  safety_switch_led_update();
   seg_display();
   state_led_update();
 }
 
+void safety_switch_detection() {
+  safety_switch_data = 0;
+  safety_switch_state = 0;
+  safety_switch_data = analogRead(11);
+  Serial.print("Safety Switch: ");
+  Serial.print(safety_switch_data);
+  Serial.print(" , ");
+  if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
+    safety_switch_state = 1;
+    Serial.println("1 , Unafe");
+  }
+  else {
+    safety_switch_state = 2;
+    Serial.println("2 , Safe");
+  }
+}
+void safety_switch_led_update() {
+  if (safety_switch_state == 1) {
+    analogWrite(safety_red, 50);
+    analogWrite(safety_green, 0);
+    analogWrite(safety_blue, 0);
+  }
+  else if (safety_switch_state == 2) {
+    analogWrite(safety_red, 0);
+    analogWrite(safety_green, 50);
+    analogWrite(safety_blue, 0);
+  }
+  else {
+    analogWrite(safety_red, 0);
+    analogWrite(safety_green, 0);
+    analogWrite(safety_blue, 50);
+  }
+}
 void seg_display() {
   if (seg_state == 0) {
     digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW);
