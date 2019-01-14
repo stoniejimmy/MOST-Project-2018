@@ -81,6 +81,7 @@ int pwm_value = 127.5; //要輸出的真實value
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("Setup Running.....");
 
   pinMode(seg_a, OUTPUT);
   pinMode(seg_b, OUTPUT);
@@ -117,6 +118,7 @@ void setup() {
   digitalWrite(ug, HIGH); digitalWrite(lg, HIGH); delay(100); digitalWrite(ug, LOW); digitalWrite(lg, LOW);
   digitalWrite(ub, HIGH); digitalWrite(lb, HIGH); delay(100); digitalWrite(ub, LOW); digitalWrite(lb, LOW);
   digitalWrite(ur, HIGH);
+  Serial.println("Setup Ended");
 }
 
 void loop() {
@@ -141,11 +143,11 @@ void safety_switch_detection() {
   if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
     safety_switch_state = 1;
     throttle_level = 1;
-    Serial.println("1 , Unafe");
+    Serial.print("1 , Unsafe");
   }
   else {
     safety_switch_state = 2;
-    Serial.println("2 , Safe");
+    Serial.print("2 , Safe  ");
   }
 }
 void safety_switch_led_update() {
@@ -171,17 +173,17 @@ void safety_switch_led_update() {
 }
 void break_process() {
   break_data = analogRead(break_pin);
-  Serial.print("Break Value = ");
+  Serial.print("  Break Value = ");
   Serial.print(break_data);
   Serial.print(", State: ");
   if (break_data >= 900) {
     break_state = 1;
-    Serial.println("Break!");
+    Serial.print("Break! ");
     led_state_1 = 3;
   }
   else{
     break_state = 2;
-    Serial.println("Normal");
+    Serial.print("Normal ");
   }
 }
 void throttle_process() {
@@ -192,47 +194,47 @@ void throttle_process() {
   if (throttle_data <= 300) {
     seg_state = 1;
     throttle_level = 1;
-    Serial.println("1");
+    Serial.print("1 ");
   }
   else if (throttle_data > 300 & throttle_data <= 350) {
     seg_state = 2;
     throttle_level = 2;
-    Serial.println("2");
+    Serial.print("2 ");
   }
   else if (throttle_data > 350 & throttle_data <= 450) {
     seg_state = 3;
     throttle_level = 3;
-    Serial.println("3");
+    Serial.print("3 ");
   }
   else if (throttle_data > 450 & throttle_data <= 500) {
     seg_state = 4;
     throttle_level = 4;
-    Serial.println("4");
+    Serial.print("4 ");
   }
   else if (throttle_data > 500 & throttle_data <= 550) {
     seg_state = 5;
     throttle_level = 5;
-    Serial.println("5");
+    Serial.print("5 ");
   }
   else if (throttle_data > 550 & throttle_data <= 600) {
     seg_state = 6;
     throttle_level = 6;
-    Serial.println("6");
+    Serial.print("6 ");
   }
   else if (throttle_data > 600 & throttle_data <= 650) {
     seg_state = 7;
     throttle_level = 7;
-    Serial.println("7");
+    Serial.print("7 ");
   }
   else if (throttle_data > 650 & throttle_data <= 700) {
     seg_state = 8;
     throttle_level = 8;
-    Serial.println("8");
+    Serial.print("8 ");
   }
   else if (throttle_data > 700) {
     seg_state = 9;
     throttle_level = 9;
-    Serial.println("9");
+    Serial.print("9 ");
   }
 }
 void pwm_process(){
@@ -272,7 +274,7 @@ void pwm_process(){
 pwm_value = 0;
 pwm_value = 2.55 * pwm_percent;
 analogWrite(PWM_pin, pwm_value);
-Serial.print("PWM Output Value: ");
+Serial.print("   PWM Output Value: ");
 Serial.println(pwm_value);
 }
 
