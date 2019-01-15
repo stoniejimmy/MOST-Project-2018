@@ -92,6 +92,15 @@ int voltage_sensor_2 = A7;
 int voltage_read3;
 float voltage_3;
 int voltage_sensor_3 = A8;
+/*
+  車燈控制
+*/
+int head_light = 25;
+int head_light_state = 0; // 0=OFF 1=HIGH
+int left_turn_indicator = 26;
+int right_turn_indicator = 27;
+int turn_indicator_state = 0; //0=off 1=left 2=right 3=both
+
 
 /*
   藍芽模組
@@ -100,6 +109,16 @@ int voltage_sensor_3 = A8;
 #include <SoftwareSerial.h>
 SoftwareSerial I2CBT(2, 3); // TX:3, RX:4
 byte serialA;
+int BT_Speed = 0;
+int BT_Battery_Voltage = 0;
+int BT_Kilos = 0;
+int BT_Sys_State = 0;
+int BT_Light = 0;
+int BT_Motor_Voltage = 0;
+int BT_Throttle = 0;
+int BT_Angle = 0;
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -124,6 +143,9 @@ void setup() {
   pinMode(safety_green, OUTPUT);
   pinMode(safety_blue, OUTPUT);
 
+  pinMode(head_light, OUTPUT);
+  pinMode(left_turn_indicator, OUTPUT);
+  pinMode(right_turn_indicator, OUTPUT);
 
   // 開始七段顯示器測試
   digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW); delay(100); digitalWrite(seg_rst, LOW);
@@ -143,6 +165,11 @@ void setup() {
   digitalWrite(ub, HIGH); digitalWrite(lb, HIGH); delay(100); digitalWrite(ub, LOW); digitalWrite(lb, LOW);
   digitalWrite(ur, HIGH);
   Serial.println("Setup Ended");
+
+  digitalWrite(left_turn_indicator, HIGH);
+  delay(735);
+  digitalWrite(left_turn_indicator, LOW);
+  delay(100);
 }
 
 void loop() {
@@ -394,12 +421,28 @@ void bluetooth() {
   byte cmmd[20];
   int insize;
   serialA = I2CBT.read();
-  int tosend_A = 12;
-  int tosend_B = 34;
-  int tosend_C = 45;
-  int tosend_D = 56;
-  int tosend_E = 67;
-  int tosend_F = 89;
+  int tosend_A = 0;
+  tosend_A = BT_Speed * 100 + BT_Kilos;
+  int tosend_B = 0;
+  if (voltage_1 >= 1 && voltage_1 <= 25) {
+    tosend_B = voltage_1 * 100;
+  }
+  else {
+    tosend_B = 0;
+  }
+  int tosend_C = 0;
+tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_state * 10) + (turn_indicator_state * 1);
+  int tosend_D = 0;
+  if (voltage_2 >= 1 && voltage_2 <= 25) {
+    tosend_D = voltage_2 * 100;
+  }
+  else {
+    tosend_D = 0;
+  }
+  int tosend_E = 0;
+  tosend_E = (throttle_level*1000) + (throttle_data * 1);
+  int tosend_F = 0;
+
 
 
   Data[0] = 'a';
