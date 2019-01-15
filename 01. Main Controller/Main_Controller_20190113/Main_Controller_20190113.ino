@@ -93,10 +93,19 @@ int voltage_read3;
 float voltage_3;
 int voltage_sensor_3 = A8;
 
+/*
+  藍芽模組
+  TX:14 RX:15
+*/
+#include <SoftwareSerial.h>
+SoftwareSerial I2CBT(2, 3); // TX:3, RX:4
+byte serialA;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Setup Running.....");
+
+  I2CBT.begin(9600);
 
   pinMode(seg_a, OUTPUT);
   pinMode(seg_b, OUTPUT);
@@ -148,7 +157,9 @@ void loop() {
   pwm_process();
   seg_display();
   state_led_update();
+  bluetooth();
 }
+
 void safety_switch_detection() {
   safety_switch_data = 0;
   safety_switch_state = 0;
@@ -377,4 +388,74 @@ void state_led_update() {
   else {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
   }
+}
+void bluetooth() {
+  byte Data[18];
+  byte cmmd[20];
+  int insize;
+  serialA = I2CBT.read();
+  int tosend_A = 12;
+  int tosend_B = 34;
+  int tosend_C = 45;
+  int tosend_D = 56;
+  int tosend_E = 67;
+  int tosend_F = 89;
+
+
+  Data[0] = 'a';
+  Data[1] = tosend_A / 256;
+  Data[2] = tosend_A % 256;
+  Data[3] = 'b';
+  Data[4] = tosend_B / 256;
+  Data[5] = tosend_B % 256;
+  Data[6] = 'c';
+  Data[7] = tosend_C / 256;
+  Data[8] = tosend_C % 256;
+  Data[9] = 'd';
+  Data[10] = tosend_D / 256;
+  Data[11] = tosend_D % 256;
+  Data[12] = 'e';
+  Data[13] = tosend_E / 256;
+  Data[14] = tosend_E % 256;
+  Data[15] = 'f';
+  Data[16] = tosend_F / 256;
+  Data[17] = tosend_F % 256;
+  /*
+    49 ＋ 00 = 49 : OFF OFF
+    49 ＋ 10 = 59 : ON  OFF
+    49 ＋ 01 = 50 : OFF ON
+    49 ＋ 11 = 60 : ON  ON
+  */
+  Serial.print("SerailA = :");
+  Serial.println(serialA);
+
+  if (serialA == 255) {
+    for (int j = 0; j < 21; j++) {
+      I2CBT.write(Data[j]);
+      Serial.print("Data Sent:");
+      Serial.println(Data[j]);
+    }
+  }
+  if (serialA == 59) {
+    for (int j = 0; j < 21; j++) {
+      I2CBT.write(Data[j]);
+      Serial.print("Data Sent:");
+      Serial.println(Data[j]);
+    }
+  }
+  if (serialA == 50) {
+    for (int j = 0; j < 21; j++) {
+      I2CBT.write(Data[j]);
+      Serial.print("Data Sent:");
+      Serial.println(Data[j]);
+    }
+  }
+  if (serialA == 60) {
+    for (int j = 0; j < 21; j++) {
+      I2CBT.write(Data[j]);
+      Serial.print("Data Sent:");
+      Serial.println(Data[j]);
+    }
+  }
+  serialA = 0;
 }
