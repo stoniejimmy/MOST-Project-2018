@@ -2,6 +2,8 @@
 //最後更新: 20190113
 //實驗地點: NKUST T211-1
 
+#include <Wire.h>
+
 /*
   七段顯示器接腳說明:
   七段顯示器的74LS47
@@ -77,6 +79,19 @@ int PWM_pin = 9;
 int pwm_percent = 0; //2.55 * pwm_percent
 int pwm_value = 127.5; //要輸出的真實value
 
+/*
+  電壓感測器
+  電池: A6 馬達: A7 Arduino: A8
+*/
+int voltage_read1;
+float voltage_1;
+int voltage_sensor_1 = A6;
+int voltage_read2;
+float voltage_2;
+int voltage_sensor_2 = A7;
+int voltage_read3;
+float voltage_3;
+int voltage_sensor_3 = A8;
 
 
 void setup() {
@@ -125,6 +140,7 @@ void loop() {
   safety_switch_state = 0; //Overwirte in safety_switch_detection if its safe.
   safety_switch_detection();
   safety_switch_led_update();
+  voltage_detection();
   if (safety_switch_state == 2) {
     break_process();
     throttle_process();
@@ -171,6 +187,26 @@ void safety_switch_led_update() {
     analogWrite(safety_blue, 50);
   }
 }
+void voltage_detection() {
+  float temp1;
+  voltage_read1 = analogRead(voltage_sensor_1);
+  temp1 = voltage_read1 / 4.092;
+  voltage_1 = (temp1 / 10);
+  Serial.print(" Voltage_1: ");
+  Serial.print(voltage_1);
+  float temp2;
+  voltage_read2 = analogRead(voltage_sensor_2);
+  temp2 = voltage_read2 / 4.092;
+  voltage_2 = (temp2 / 10);
+  Serial.print(" Voltage_2: ");
+  Serial.print(voltage_2);
+  float temp3;
+  voltage_read3 = analogRead(voltage_sensor_3);
+  temp3 = voltage_read3 / 4.092;
+  voltage_3 = (temp3 / 10);
+  Serial.print(" Voltage 3: ");
+  Serial.print(voltage_3);
+}
 void break_process() {
   break_data = analogRead(break_pin);
   Serial.print("  Break Value = ");
@@ -181,7 +217,7 @@ void break_process() {
     Serial.print("Break! ");
     led_state_1 = 3;
   }
-  else{
+  else {
     break_state = 2;
     Serial.print("Normal ");
   }
@@ -237,47 +273,46 @@ void throttle_process() {
     Serial.print("9 ");
   }
 }
-void pwm_process(){
-  if (throttle_level == 0){
+void pwm_process() {
+  if (throttle_level == 0) {
     pwm_percent = 50;
   }
-  else if (throttle_level == 1){
+  else if (throttle_level == 1) {
     pwm_percent = 55;
   }
-  else if (throttle_level == 2){
+  else if (throttle_level == 2) {
     pwm_percent = 60;
   }
-  else if (throttle_level == 3){
+  else if (throttle_level == 3) {
     pwm_percent = 61;
   }
-  else if (throttle_level == 4){
+  else if (throttle_level == 4) {
     pwm_percent = 62;
   }
-  else if (throttle_level == 5){
+  else if (throttle_level == 5) {
     pwm_percent = 64;
   }
-  else if (throttle_level == 6){
+  else if (throttle_level == 6) {
     pwm_percent = 65;
   }
-  else if (throttle_level == 7){
+  else if (throttle_level == 7) {
     pwm_percent = 68;
   }
-  else if (throttle_level == 8){
+  else if (throttle_level == 8) {
     pwm_percent = 70;
   }
-  else if (throttle_level == 9){
+  else if (throttle_level == 9) {
     pwm_percent = 75;
   }
-  else{
-  pwm_percent = 50;
+  else {
+    pwm_percent = 50;
+  }
+  pwm_value = 0;
+  pwm_value = 2.55 * pwm_percent;
+  analogWrite(PWM_pin, pwm_value);
+  Serial.print("   PWM Output Value: ");
+  Serial.println(pwm_value);
 }
-pwm_value = 0;
-pwm_value = 2.55 * pwm_percent;
-analogWrite(PWM_pin, pwm_value);
-Serial.print("   PWM Output Value: ");
-Serial.println(pwm_value);
-}
-
 void seg_display() {
   if (seg_state == 0) {
     digitalWrite(seg_rst, HIGH); digitalWrite(seg_a, LOW); digitalWrite(seg_b, LOW); digitalWrite(seg_c, LOW); digitalWrite(seg_d, LOW);
@@ -323,7 +358,7 @@ void state_led_update() {
     digitalWrite(ur, LOW); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
     digitalWrite(ub, HIGH);
   }
-  else{
+  else {
     digitalWrite(ur, LOW); digitalWrite(ug, LOW); digitalWrite(ub, LOW);
   }
 
@@ -339,7 +374,7 @@ void state_led_update() {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
     digitalWrite(lb, HIGH);
   }
-  else{
+  else {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
   }
 }
