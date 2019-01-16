@@ -125,6 +125,7 @@ int BT_Angle = 0;
 volatile int rpm_a; volatile int rpm_b; volatile int rpm;
 float Speed = 0;
 
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Setup Running.....");
@@ -507,6 +508,7 @@ void bluetooth() {
   Data[15] = 'f';
   Data[16] = tosend_F / 256;
   Data[17] = tosend_F % 256;
+
   /*
     49 ＋ 00 = 49 : OFF OFF
     49 ＋ 10 = 59 : ON  OFF
