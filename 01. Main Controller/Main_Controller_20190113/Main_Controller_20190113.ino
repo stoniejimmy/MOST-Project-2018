@@ -196,7 +196,7 @@ void safety_switch_detection() {
   Serial.print(" , ");
   if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
     safety_switch_state = 1;
-    throttle_level = 1;
+    throttle_level = 0;
     Serial.print("1 , Unsafe");
   }
   else {
