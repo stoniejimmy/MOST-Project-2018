@@ -118,11 +118,18 @@ int BT_Motor_Voltage = 0;
 int BT_Throttle = 0;
 int BT_Angle = 0;
 
-
+/*
+  I2C
+  rpm Calculator: 11
+*/
+volatile int rpm_a; volatile int rpm_b; volatile int rpm;
+float Speed = 0;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Setup Running.....");
+
+  Wire.begin();
 
   I2CBT.begin(9600);
 
@@ -184,6 +191,7 @@ void loop() {
   pwm_process();
   seg_display();
   state_led_update();
+  i2c_request();
   bluetooth();
 }
 
@@ -191,17 +199,17 @@ void safety_switch_detection() {
   safety_switch_data = 0;
   safety_switch_state = 0;
   safety_switch_data = analogRead(11);
-  Serial.print("Safety Switch: ");
+  Serial.print("Safety_Switch:");
   Serial.print(safety_switch_data);
-  Serial.print(" , ");
-  if (safety_switch_data >= 1015 && safety_switch_data <= 1023) {
+  Serial.print(",");
+  if (safety_switch_data >= 1000 && safety_switch_data <= 1023) {
     safety_switch_state = 1;
     throttle_level = 0;
-    Serial.print("1 , Unsafe");
+    Serial.print("1,Unsafe.");
   }
   else {
     safety_switch_state = 2;
-    Serial.print("2 , Safe  ");
+    Serial.print("2,Safe.");
   }
 }
 void safety_switch_led_update() {
@@ -230,85 +238,85 @@ void voltage_detection() {
   voltage_read1 = analogRead(voltage_sensor_1);
   temp1 = voltage_read1 / 4.092;
   voltage_1 = (temp1 / 10);
-  Serial.print(" Voltage_1: ");
+  Serial.print(" Voltage_1:");
   Serial.print(voltage_1);
   float temp2;
   voltage_read2 = analogRead(voltage_sensor_2);
   temp2 = voltage_read2 / 4.092;
   voltage_2 = (temp2 / 10);
-  Serial.print(" Voltage_2: ");
+  Serial.print(" Voltage_2:");
   Serial.print(voltage_2);
   float temp3;
   voltage_read3 = analogRead(voltage_sensor_3);
   temp3 = voltage_read3 / 4.092;
   voltage_3 = (temp3 / 10);
-  Serial.print(" Voltage 3: ");
+  Serial.print(" Voltage_3:");
   Serial.print(voltage_3);
 }
 void break_process() {
   break_data = analogRead(break_pin);
-  Serial.print("  Break Value = ");
+  Serial.print(" Break Value=");
   Serial.print(break_data);
-  Serial.print(", State: ");
+  Serial.print(",State:");
   if (break_data >= 900) {
     break_state = 1;
-    Serial.print("Break! ");
+    Serial.print("Break!");
     led_state_1 = 3;
   }
   else {
     break_state = 2;
-    Serial.print("Normal ");
+    Serial.print("Normal");
   }
 }
 void throttle_process() {
   throttle_data = analogRead(throttle_pin);
-  Serial.print("Throttle Value = ");
+  Serial.print(" Throttle_Value=");
   Serial.print(throttle_data);
-  Serial.print(", Level: ");
+  Serial.print(",Level: ");
   if (throttle_data <= 300) {
     seg_state = 1;
     throttle_level = 1;
-    Serial.print("1 ");
+    Serial.print("1");
   }
   else if (throttle_data > 300 & throttle_data <= 350) {
     seg_state = 2;
     throttle_level = 2;
-    Serial.print("2 ");
+    Serial.print("2");
   }
   else if (throttle_data > 350 & throttle_data <= 450) {
     seg_state = 3;
     throttle_level = 3;
-    Serial.print("3 ");
+    Serial.print("3");
   }
   else if (throttle_data > 450 & throttle_data <= 500) {
     seg_state = 4;
     throttle_level = 4;
-    Serial.print("4 ");
+    Serial.print("4");
   }
   else if (throttle_data > 500 & throttle_data <= 550) {
     seg_state = 5;
     throttle_level = 5;
-    Serial.print("5 ");
+    Serial.print("5");
   }
   else if (throttle_data > 550 & throttle_data <= 600) {
     seg_state = 6;
     throttle_level = 6;
-    Serial.print("6 ");
+    Serial.print("6");
   }
   else if (throttle_data > 600 & throttle_data <= 650) {
     seg_state = 7;
     throttle_level = 7;
-    Serial.print("7 ");
+    Serial.print("7");
   }
   else if (throttle_data > 650 & throttle_data <= 700) {
     seg_state = 8;
     throttle_level = 8;
-    Serial.print("8 ");
+    Serial.print("8");
   }
   else if (throttle_data > 700) {
     seg_state = 9;
     throttle_level = 9;
-    Serial.print("9 ");
+    Serial.print("9");
   }
 }
 void pwm_process() {
@@ -348,8 +356,8 @@ void pwm_process() {
   pwm_value = 0;
   pwm_value = 2.55 * pwm_percent;
   analogWrite(PWM_pin, pwm_value);
-  Serial.print("   PWM Output Value: ");
-  Serial.println(pwm_value);
+  Serial.print(" PWM_Out:");
+  Serial.print(pwm_value);
 }
 void seg_display() {
   if (seg_state == 0) {
@@ -416,13 +424,50 @@ void state_led_update() {
     digitalWrite(lr, LOW); digitalWrite(lg, LOW); digitalWrite(lb, LOW);
   }
 }
+void i2c_request() {
+  Wire.requestFrom(11, 2);
+  while (Wire.available())
+  {
+    rpm_a = Wire.read(); rpm_b = Wire.read();
+    rpm = (rpm_b << 8) | rpm_a;
+    float Speed_Calc = 0;
+    Speed_Calc = rpm * 0.020944;
+    if (Speed_Calc >= 0 && Speed_Calc <= 20) {
+      Speed = Speed_Calc;
+    }
+    else {
+      Speed = 0;
+    }
+  }
+  if (rpm >= 1 && rpm <= 700) {
+    Serial.print(" i2c:");
+    Serial.print(rpm);
+    Serial.print(" Speed:");
+    Serial.print(Speed);
+    Serial.print("km/h");
+  }
+  else if (rpm <= 1) {
+    Serial.print(" i2c:");
+    Serial.print("0");
+    Serial.print(" Speed:");
+    Serial.print(Speed);
+    Serial.print("km/h");
+  }
+  else {
+    Serial.print(" i2c:");
+    Serial.print("ERROR ");
+    Serial.print(" Speed:");
+    Serial.print(Speed);
+    Serial.print("km/h");
+  }
+}
 void bluetooth() {
   byte Data[18];
   byte cmmd[20];
   int insize;
   serialA = I2CBT.read();
   int tosend_A = 0;
-  tosend_A = BT_Speed * 100 + BT_Kilos;
+  tosend_A = Speed * 100;
   int tosend_B = 0;
   if (voltage_1 >= 1 && voltage_1 <= 25) {
     tosend_B = voltage_1 * 100;
@@ -431,7 +476,7 @@ void bluetooth() {
     tosend_B = 0;
   }
   int tosend_C = 0;
-tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_state * 10) + (turn_indicator_state * 1);
+  tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_state * 10) + (turn_indicator_state * 1);
   int tosend_D = 0;
   if (voltage_2 >= 1 && voltage_2 <= 25) {
     tosend_D = voltage_2 * 100;
@@ -440,10 +485,9 @@ tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_stat
     tosend_D = 0;
   }
   int tosend_E = 0;
-  tosend_E = (throttle_level*1000) + (throttle_data * 1);
+  tosend_E = (throttle_level * 1000) + (throttle_data * 1);
   int tosend_F = 0;
-
-
+  tosend_F = rpm;
 
   Data[0] = 'a';
   Data[1] = tosend_A / 256;
@@ -469,35 +513,35 @@ tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_stat
     49 ＋ 01 = 50 : OFF ON
     49 ＋ 11 = 60 : ON  ON
   */
-  Serial.print("SerailA = :");
+  Serial.print(" SerailA=");
   Serial.println(serialA);
 
   if (serialA == 255) {
     for (int j = 0; j < 21; j++) {
       I2CBT.write(Data[j]);
-      Serial.print("Data Sent:");
-      Serial.println(Data[j]);
+      //Serial.print("Data Sent:");
+      //Serial.println(Data[j]);
     }
   }
   if (serialA == 59) {
     for (int j = 0; j < 21; j++) {
       I2CBT.write(Data[j]);
-      Serial.print("Data Sent:");
-      Serial.println(Data[j]);
+      //Serial.print("Data Sent:");
+      //Serial.println(Data[j]);
     }
   }
   if (serialA == 50) {
     for (int j = 0; j < 21; j++) {
       I2CBT.write(Data[j]);
-      Serial.print("Data Sent:");
-      Serial.println(Data[j]);
+      //Serial.print("Data Sent:");
+      //Serial.println(Data[j]);
     }
   }
   if (serialA == 60) {
     for (int j = 0; j < 21; j++) {
       I2CBT.write(Data[j]);
-      Serial.print("Data Sent:");
-      Serial.println(Data[j]);
+      //Serial.print("Data Sent:");
+      //Serial.println(Data[j]);
     }
   }
   serialA = 0;
