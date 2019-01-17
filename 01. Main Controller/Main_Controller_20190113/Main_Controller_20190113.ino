@@ -131,6 +131,8 @@ void setup() {
   Serial.println("Setup Running.....");
 
   Wire.begin();
+  Wire.begin(12);
+  Wire.onRequest(requestEvent);
 
   I2CBT.begin(9600);
 
@@ -547,4 +549,48 @@ void bluetooth() {
     }
   }
   serialA = 0;
+}
+
+void requestEvent()
+{
+  int tosend_A = 0;
+  tosend_A = Speed * 100;
+  int tosend_B = 0;
+  if (voltage_1 >= 1 && voltage_1 <= 25) {
+    tosend_B = voltage_1 * 100;
+  }
+  else {
+    tosend_B = 0;
+  }
+  int tosend_C = 0;
+  tosend_C = (safety_switch_state * 1000) + (break_state * 100) + (head_light_state * 10) + (turn_indicator_state * 1);
+  int tosend_D = 0;
+  if (voltage_2 >= 1 && voltage_2 <= 25) {
+    tosend_D = voltage_2 * 100;
+  }
+  else {
+    tosend_D = 0;
+  }
+  int tosend_E = 0;
+  tosend_E = (throttle_level * 1000) + (throttle_data * 1);
+  int tosend_F = 0;
+  tosend_F = rpm;
+
+  Wire.write(tosend_A); // lower byte
+  Wire.write(tosend_A >> 8); // upper byte
+
+  Wire.write(tosend_B); // lower byte
+  Wire.write(tosend_B >> 8); // upper byte
+
+  Wire.write(tosend_C); // lower byte
+  Wire.write(tosend_C >> 8); // upper byte
+
+  Wire.write(tosend_D); // lower byte
+  Wire.write(tosend_D >> 8); // upper byte
+
+  Wire.write(tosend_E); // lower byte
+  Wire.write(tosend_E >> 8); // upper byte
+
+  Wire.write(tosend_F); // lower byte
+  Wire.write(tosend_F >> 8); // upper byte
 }
