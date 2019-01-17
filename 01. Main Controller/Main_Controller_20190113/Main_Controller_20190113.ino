@@ -136,6 +136,8 @@ void setup() {
 
   I2CBT.begin(9600);
 
+  pinMode(14, INPUT);
+
   pinMode(seg_a, OUTPUT);
   pinMode(seg_b, OUTPUT);
   pinMode(seg_c, OUTPUT);
@@ -206,6 +208,11 @@ void safety_switch_detection() {
   Serial.print(safety_switch_data);
   Serial.print(",");
   if (safety_switch_data >= 1000 && safety_switch_data <= 1023) {
+    safety_switch_state = 1;
+    throttle_level = 0;
+    Serial.print("1,Unsafe.");
+  }
+  else if (digitalRead(14) == LOW){
     safety_switch_state = 1;
     throttle_level = 0;
     Serial.print("1,Unsafe.");
@@ -357,7 +364,7 @@ void pwm_process() {
     pwm_percent = 50;
   }
   pwm_value = 0;
-  pwm_value = 2.55 * pwm_percent;
+  pwm_value = 2.55 * pwm_percent*1.4;
   analogWrite(PWM_pin, pwm_value);
   Serial.print(" PWM_Out:");
   Serial.print(pwm_value);
